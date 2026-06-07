@@ -12,3 +12,4 @@ Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);
 Config.overrideWebpackConfig(enableTailwind);
 Config.setStudioPort(33000);
+Config.setRendererPort(33001);

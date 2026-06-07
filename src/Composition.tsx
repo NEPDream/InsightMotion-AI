@@ -28,7 +28,7 @@ const COLORS = {
 };
 
 const FONT =
-  'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  '"Noto Sans CJK SC", "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 
 const sceneDuration = (animationEndFrame: number) => {
   return animationEndFrame + SCENE_HOLD_IN_FRAMES + SCENE_FADE_OUT_IN_FRAMES;
