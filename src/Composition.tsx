@@ -51,6 +51,7 @@ const buildTimeline = <T extends Record<string, number>>(animationEnds: T) => {
 };
 
 const timeline = buildTimeline({
+  thanks: 118,
   title: 138,
   metrics: 52,
   risk: 100,
@@ -253,6 +254,236 @@ const sectionLabelStyle = (color = COLORS.blue): CSSProperties => ({
   letterSpacing: 0,
   textTransform: "uppercase",
 });
+
+const UnityLogoMark = () => {
+  return (
+    <div
+      style={{
+        width: 74,
+        height: 74,
+        borderRadius: 999,
+        background: "#050505",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <path
+          d="M24 5L8 14.5v19L24 43l16-9.5v-19L24 5z"
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth="4"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M24 5v14.5L11 27M24 19.5L37 27M24 19.5V43"
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  );
+};
+
+const LinuxDoLogoMark = () => {
+  return (
+    <div
+      style={{
+        width: 88,
+        height: 88,
+        borderRadius: 999,
+        background: "#F8FAFC",
+        overflow: "hidden",
+        position: "relative",
+        boxShadow: "0 0 0 1px rgba(15, 23, 42, 0.08)",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 0,
+          height: 38,
+          background: "#111217",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 38,
+          height: 24,
+          background: "#F8FAFC",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 26,
+          background: "#FDBA10",
+        }}
+      />
+    </div>
+  );
+};
+
+const SponsorLogoCard = ({
+  mark,
+  name,
+  delay,
+  color,
+}: {
+  mark: ReactNode;
+  name: string;
+  delay: number;
+  color: string;
+}) => {
+  const frame = useCurrentFrame();
+  const progress = ease(frame, delay, delay + 38);
+
+  return (
+    <div
+      style={panelStyle({
+        width: 410,
+        height: 164,
+        padding: "30px 34px",
+        display: "flex",
+        alignItems: "center",
+        gap: 24,
+        opacity: progress,
+        transform: `translateY(${interpolate(progress, [0, 1], [24, 0])}px)`,
+        borderColor: `rgba(248, 250, 252, ${0.18 + progress * 0.16})`,
+      })}
+    >
+      <div
+        style={{
+          transform: `scale(${0.82 + progress * 0.18}) rotate(${interpolate(
+            progress,
+            [0, 1],
+            [-8, 0],
+          )}deg)`,
+        }}
+      >
+        {mark}
+      </div>
+      <div>
+        <div
+          style={{
+            color: COLORS.muted,
+            fontSize: 16,
+            fontWeight: 850,
+            marginBottom: 6,
+          }}
+        >
+          THANKS TO
+        </div>
+        <div
+          style={{
+            color,
+            fontSize: 36,
+            fontWeight: 950,
+            letterSpacing: 0,
+          }}
+        >
+          {name}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ThanksScene = () => {
+  const frame = useCurrentFrame();
+  const opacity = fadeForScene(frame, SCENES.thanks.duration);
+  const headlineProgress = ease(frame, 8, 58);
+  const lineProgress = ease(frame, 70, 118);
+
+  return (
+    <AbsoluteFill
+      style={{
+        opacity,
+        color: COLORS.text,
+        fontFamily: FONT,
+        padding: "72px 78px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        style={{
+          opacity: headlineProgress,
+          transform: `translateY(${interpolate(headlineProgress, [0, 1], [22, 0])}px)`,
+        }}
+      >
+        <div style={sectionLabelStyle(COLORS.low)}>SPECIAL THANKS</div>
+        <div
+          style={{
+            marginTop: 18,
+            fontSize: 60,
+            lineHeight: 1.08,
+            fontWeight: 950,
+            letterSpacing: 0,
+          }}
+        >
+          感谢 Linux.Do 和 unity2.ai
+        </div>
+        <div
+          style={{
+            color: COLORS.muted,
+            fontSize: 22,
+            lineHeight: 1.45,
+            maxWidth: 760,
+            marginTop: 20,
+          }}
+        >
+          感谢社区与工具生态对本次 AI 岗位影响分析视频制作的支持。
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 26,
+          marginTop: 54,
+        }}
+      >
+        <SponsorLogoCard
+          mark={<LinuxDoLogoMark />}
+          name="LINUX DO"
+          delay={42}
+          color={COLORS.text}
+        />
+        <SponsorLogoCard
+          mark={<UnityLogoMark />}
+          name="unity2.ai"
+          delay={56}
+          color={COLORS.text}
+        />
+      </div>
+
+      <div
+        style={{
+          width: 740 * lineProgress,
+          height: 4,
+          borderRadius: 999,
+          marginTop: 52,
+          background: `linear-gradient(90deg, ${COLORS.low}, ${COLORS.blue}, ${COLORS.high})`,
+          boxShadow: "0 0 30px rgba(56, 189, 248, 0.32)",
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
 
 const Background = () => {
   const frame = useCurrentFrame();
@@ -2153,6 +2384,9 @@ export const MyComposition = () => {
   return (
     <AbsoluteFill style={{ background: COLORS.background, fontFamily: FONT }}>
       <Background />
+      <Sequence from={SCENES.thanks.from} durationInFrames={SCENES.thanks.duration}>
+        <ThanksScene />
+      </Sequence>
       <Sequence from={SCENES.title.from} durationInFrames={SCENES.title.duration}>
         <TitleScene />
       </Sequence>
