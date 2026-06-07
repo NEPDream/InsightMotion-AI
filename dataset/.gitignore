@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# uv
+uv.lock
+.python-version
+
+# IDE
+.idea/
+
+# other
+*test*.py
+.lingma
+
+# logs
+logs/
+
+# no use
+test/
+tmp/
+temp/
