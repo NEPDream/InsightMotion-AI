@@ -1,0 +1,10 @@
+check,violations
+Age outside 21-60,0
+Years_of_Experience < 0,0
+Years_of_Experience > Age - 18,0
+Routine_Task_Percentage outside 0-100,0
+Tasks_Automated_Percentage outside 0-100,0
+Creativity_Requirement outside 0-100,0
+Human_Interaction_Level outside 0-100,0
+AI_Usage_Hours_Per_Week > 80,0
+AI_Training_Hours > 200,0

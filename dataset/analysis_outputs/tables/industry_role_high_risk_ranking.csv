@@ -1,0 +1,25 @@
+Industry,Job_Role,n,high_rate
+Manufacturing,Operator,858,0.5023310023310024
+Manufacturing,Production Supervisor,806,0.4826302729528536
+Manufacturing,Quality Engineer,793,0.46027742749054223
+Retail,Inventory Analyst,857,0.4457409568261377
+Logistics,Dispatcher,788,0.4213197969543147
+Logistics,Warehouse Manager,843,0.4128113879003559
+Logistics,Supply Chain Analyst,857,0.411901983663944
+Retail,Sales Associate,807,0.40644361833952913
+Finance,Accountant,821,0.39585870889159563
+Finance,Auditor,813,0.37392373923739236
+Telecom,Network Engineer,862,0.37122969837587005
+Retail,Store Manager,803,0.36737235367372356
+Finance,Financial Analyst,879,0.36291240045506257
+Telecom,Support Specialist,873,0.35051546391752575
+Telecom,Operations Analyst,847,0.33293978748524206
+IT,Data Analyst,849,0.2826855123674912
+IT,Software Engineer,829,0.2810615199034982
+IT,ML Engineer,805,0.2745341614906832
+Healthcare,Medical Assistant,889,0.2452193475815523
+Education,Academic Coordinator,819,0.22832722832722832
+Healthcare,Health Analyst,772,0.21243523316062177
+Education,Research Assistant,818,0.21026894865525672
+Healthcare,Nurse,900,0.16666666666666666
+Education,Teacher,812,0.16379310344827586
