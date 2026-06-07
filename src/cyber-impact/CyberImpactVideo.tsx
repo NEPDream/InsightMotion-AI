@@ -262,28 +262,46 @@ function ThanksScene({ durationInFrames }: { durationInFrames: number }) {
         <div
           style={{
             position: "absolute",
-            top: 186,
+            top: 128,
             textAlign: "center",
             opacity: smooth(frame, 4, 28),
           }}
         >
-          <Kicker color={COLORS.low}>特别鸣谢</Kicker>
-          <MainTitle size={58} style={{ marginTop: 12 }}>
+          <MainTitle
+            size={92}
+            style={{
+              color: COLORS.low,
+              textShadow: `0 0 42px ${COLORS.low}66`,
+            }}
+          >
+            特别鸣谢
+          </MainTitle>
+          <MainTitle size={54} style={{ marginTop: 18 }}>
             数据项目支持与社区鸣谢
           </MainTitle>
         </div>
-        <div style={{ display: "flex", gap: 90, alignItems: "center" }}>
-          <BrandMark src="linuxdo.png" label="Linux.Do" delay={20} />
+        <div style={{ display: "flex", gap: 120, alignItems: "center" }}>
+          <BrandMark
+            src="linuxdo.png"
+            label="Linux.Do"
+            delay={20}
+            scale={1.28}
+          />
           <div
             style={{
-              width: 230,
-              height: 4,
+              width: 270,
+              height: 6,
               background: `linear-gradient(90deg, transparent, ${COLORS.blue}, ${COLORS.low}, transparent)`,
               boxShadow: `0 0 28px ${COLORS.blue}`,
               transform: `scaleX(${beam})`,
             }}
           />
-          <BrandMark src="unity2.png" label="unity2.ai" delay={40} />
+          <BrandMark
+            src="unity2.png"
+            label="unity2.ai"
+            delay={20}
+            scale={1.28}
+          />
         </div>
       </AbsoluteFill>
     </SceneShell>
@@ -467,7 +485,7 @@ function QualityScene({ durationInFrames }: { durationInFrames: number }) {
           style={{ position: "absolute", bottom: 118 }}
         >
           {metrics.map((metric, index) => {
-            const x = 100 + index * 395;
+            const x = 110 + index * 360;
             const reveal = smooth(frame, 42 + index * 12, 70 + index * 12);
             return (
               <g key={metric.label} opacity={reveal}>
@@ -1820,6 +1838,13 @@ function ModelScene({ durationInFrames }: { durationInFrames: number }) {
 function ShapScene({ durationInFrames }: { durationInFrames: number }) {
   const frame = useCurrentFrame();
   const opacity = sceneOpacity(frame, durationInFrames);
+  const targets = [
+    { x: 730, y: 118 },
+    { x: 850, y: 246 },
+    { x: 805, y: 382 },
+    { x: 705, y: 518 },
+    { x: 555, y: 620 },
+  ];
 
   return (
     <SceneShell opacity={opacity} label="SHAP 轨道" title="特征归因">
@@ -1869,11 +1894,9 @@ function ShapScene({ durationInFrames }: { durationInFrames: number }) {
           {shapImportance.map((item, index) => {
             const delay = 22 + index * 18;
             const reveal = smooth(frame, delay, delay + 38);
-            const length = 170 + item.value * 180;
-            const angle = -58 + index * 29;
-            const rad = (angle / 180) * Math.PI;
-            const x2 = 330 + Math.cos(rad) * length * reveal;
-            const y2 = 360 + Math.sin(rad) * length * reveal;
+            const target = targets[index];
+            const x2 = 330 + (target.x - 330) * reveal;
+            const y2 = 360 + (target.y - 360) * reveal;
             const color =
               index < 2 ? COLORS.high : index < 4 ? COLORS.extreme : COLORS.low;
             return (
@@ -2092,17 +2115,19 @@ function RedesignScene({ durationInFrames }: { durationInFrames: number }) {
             const reveal = smooth(frame, 48 + index * 18, 92 + index * 18);
             const x = 500 + index * 215;
             const y = 190 + (index % 2) * 150;
+            const targetX = x + 95;
+            const targetY = y;
             return (
               <g key={path} opacity={reveal}>
                 <path
-                  d={`M310 310 C${400 + index * 70} ${130 + index * 40}, ${
-                    x - 55
-                  } ${y}, ${x} ${y}`}
+                  d={`M310 310 C${430 + index * 68} ${
+                    120 + index * 40
+                  }, ${targetX - 70} ${targetY}, ${targetX} ${targetY}`}
                   fill="none"
                   stroke={index % 2 === 0 ? COLORS.low : COLORS.blue}
                   strokeWidth="5"
                   strokeLinecap="round"
-                  strokeDasharray={`${reveal * 460} 460`}
+                  strokeDasharray={`${reveal * 980} 980`}
                   style={{
                     filter: `drop-shadow(0 0 14px ${
                       index % 2 === 0 ? COLORS.low : COLORS.blue
@@ -2283,7 +2308,24 @@ function ClosingScene({ durationInFrames }: { durationInFrames: number }) {
             transform: `translateY(${(1 - reveal) * 42}px)`,
           }}
         >
-          <Kicker color={COLORS.low}>最终洞察</Kicker>
+          <div
+            style={{
+              display: "inline-block",
+              padding: "12px 34px",
+              color: COLORS.low,
+              fontSize: 48,
+              fontWeight: 950,
+              letterSpacing: 0,
+              border: `2px solid ${COLORS.low}AA`,
+              background: "rgba(47, 255, 208, 0.08)",
+              boxShadow: `0 0 36px ${COLORS.low}66`,
+              textShadow: `0 0 26px ${COLORS.low}`,
+              clipPath:
+                "polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px)",
+            }}
+          >
+            最终洞察
+          </div>
           <MainTitle size={72} style={{ marginTop: 22 }}>
             不是 AI 替代人
             <br />

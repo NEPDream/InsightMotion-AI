@@ -382,19 +382,20 @@ export const BrandMark: React.FC<{
   src: string;
   label: string;
   delay: number;
-}> = ({ src, label, delay }) => {
+  scale?: number;
+}> = ({ src, label, delay, scale = 1 }) => {
   const frame = useCurrentFrame();
   const reveal = smooth(frame, delay, delay + 28);
   return (
     <div
       style={{
-        width: 420,
-        height: 210,
+        width: 440 * scale,
+        height: 230 * scale,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        gap: 20,
+        gap: 20 * scale,
         border: `1px solid ${COLORS.blue}66`,
         background: "rgba(5, 8, 22, 0.64)",
         boxShadow: `0 0 ${32 * reveal}px ${COLORS.blue}36`,
@@ -407,8 +408,8 @@ export const BrandMark: React.FC<{
       <Img
         src={staticFile(src)}
         style={{
-          width: 96,
-          height: 96,
+          width: 220 * scale,
+          height: 96 * scale,
           objectFit: "contain",
           filter: `drop-shadow(0 0 18px ${COLORS.blue}88)`,
         }}
@@ -416,7 +417,7 @@ export const BrandMark: React.FC<{
       <div
         style={{
           color: COLORS.text,
-          fontSize: 30,
+          fontSize: 32 * scale,
           fontWeight: 900,
           letterSpacing: 0,
         }}
