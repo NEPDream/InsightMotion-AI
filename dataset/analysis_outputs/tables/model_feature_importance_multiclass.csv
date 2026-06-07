@@ -1,70 +1,70 @@
 feature,mean_abs_coefficient
-Industry_Education,3.664259595699521
-Job_Level_Score,3.2519790722161765
-Routine_Task_Percentage,3.2269410967644863
-Tasks_Automated_Percentage,3.14843292675506
-Industry_Manufacturing,3.045542955555358
-Industry_Healthcare,2.976729896257161
-Industry_Retail,2.2738060131804736
-Education_Score,1.9705853229620711
-Job_Level_Senior,1.8148232933727877
-Experience_Band_15+,1.6840523657761415
-Industry_Logistics,1.6611239271042673
-Experience_Band_0-3,1.6508499225399866
-Human_Creative_Protection_Index,1.6035548469964291
-Creativity_Requirement,1.5590884904373743
-Automation_Exposure_Index,1.5587775594647633
-Industry_IT,1.5033746104613999
-Job_Role_Research Assistant,1.3541599054871425
-Job_Role_Teacher,1.1992443908811166
-Job_Level_Mid,1.1183740853521107
-Job_Role_Academic Coordinator,1.1108552993312644
-Job_Role_Production Supervisor,1.1094658797579855
-Job_Role_Health Analyst,1.0900278084233272
-Job_Role_Operator,1.0758358573997164
-Job_Role_Nurse,1.0259912686216832
-Job_Role_Quality Engineer,0.9299243685405202
-AI_Training_Hours,0.871929687702275
-Job_Role_Medical Assistant,0.8607108192121423
-Job_Role_Sales Associate,0.8300283520115274
-Industry_Finance,0.8265183901552144
-Years_of_Experience,0.8072233866300058
-Education_Level_High School,0.7733701545260678
-Job_Role_Store Manager,0.7536149081490863
-Job_Level_Entry,0.7449130987771566
-Job_Role_Inventory Analyst,0.72877805089762
-Experience_Band_4-7,0.7018331810855679
-Education_Level_Master's,0.6912000860020454
-Human_Interaction_Level,0.6858634960643278
-Job_Role_Software Engineer,0.621547343678296
-Job_Role_Warehouse Manager,0.6001430426328594
-Job_Role_Supply Chain Analyst,0.5826120459261924
-Job_Role_ML Engineer,0.53693670946561
-Job_Role_Dispatcher,0.5110051185900535
-AI_Adoption_Level_Low,0.5070941599960217
-AI_Adoption_Score,0.47865984145948975
-Job_Role_Data Analyst,0.41173429469585615
-Job_Role_Financial Analyst,0.3893739154675688
-Job_Role_Auditor,0.3639488934407937
-AI_Adoption_Level_Medium,0.36204413433993793
-Age_Band_21-30,0.3594075970101051
-Company_Size_Medium,0.3575606849971793
-Experience_Band_8-15,0.35280219276628544
-Company_Size_Small,0.34414624608192285
-Age_Band_31-40,0.3139992795049123
-Age_Band_51-60,0.3131696332832552
-Company_Size_Large,0.29283193303890787
-Education_Level_PhD,0.28563349376810465
-AI_Intensity_Index,0.25029318544348683
-Education_Level_Bachelor's,0.24803099344112653
-Number_of_AI_Tools_Used,0.22987795536965983
-Age_Band_41-50,0.2209164414050173
-AI_Adoption_Level_High,0.21352273899947574
-Age,0.2029421689703809
-Industry_Telecom,0.1391262990919081
-AI_Usage_Hours_Per_Week,0.09699873129549795
-Job_Role_Accountant,0.08568407512508153
-Job_Role_Network Engineer,0.07581143071617376
-Job_Role_Operations Analyst,0.04007957867087197
-Company_Size_Score,0.037424905890348206
-Job_Role_Support Specialist,0.03380607018872804
+Industry_Education,3.6780241586169304
+Routine_Task_Percentage,3.241796809917544
+Job_Level_Score,3.23976567413756
+Tasks_Automated_Percentage,3.152747724456047
+Industry_Manufacturing,3.0273019183982774
+Industry_Healthcare,2.9907010468041855
+Industry_Retail,2.333052964018446
+Education_Score,1.9871717112652796
+Job_Level_Senior,1.7929263141040008
+Industry_Logistics,1.6505808541187565
+Experience_Band_0-3,1.5860975185346604
+Human_Creative_Protection_Index,1.5853853039567276
+Experience_Band_15+,1.539055651546689
+Creativity_Requirement,1.5311930811006664
+Automation_Exposure_Index,1.5141727576016828
+Industry_IT,1.4549820677410317
+Job_Role_Teacher,1.2916461414609217
+Job_Role_Academic Coordinator,1.2005809281361675
+Job_Role_Research Assistant,1.1857970890198406
+Job_Role_Production Supervisor,1.0721542055474378
+Job_Level_Mid,1.0607955375837617
+Job_Role_Operator,1.054499975936761
+Job_Role_Health Analyst,1.0470405196756536
+Job_Role_Nurse,1.0300850589540993
+Job_Role_Quality Engineer,0.9762939523014339
+Job_Role_Medical Assistant,0.9135754681744253
+Years_of_Experience,0.8339997410810612
+Industry_Finance,0.8286638886032968
+Job_Role_Store Manager,0.8203721694376576
+Job_Level_Entry,0.770841770368667
+Education_Level_High School,0.7689051180245059
+Job_Role_Inventory Analyst,0.7625488820494623
+Job_Role_Sales Associate,0.7553310284506033
+AI_Training_Hours,0.7377287951562619
+Experience_Band_4-7,0.7355886921990527
+Human_Interaction_Level,0.6687184011705934
+Education_Level_Master's,0.6618699286656726
+AI_Adoption_Score,0.5945208819632906
+Job_Role_Warehouse Manager,0.5730472191177002
+Job_Role_ML Engineer,0.5604849692568047
+Job_Role_Dispatcher,0.5560206786886192
+Job_Role_Supply Chain Analyst,0.5449053457365514
+Job_Role_Software Engineer,0.5377153586262535
+AI_Adoption_Level_Low,0.4935044018318006
+Job_Role_Financial Analyst,0.4157277793190411
+Job_Role_Auditor,0.3996514539321292
+Experience_Band_8-15,0.3901544078544364
+Job_Role_Data Analyst,0.38966944331266395
+Company_Size_Medium,0.36350769834912455
+AI_Adoption_Level_Medium,0.36053702849664515
+Company_Size_Small,0.32491796268768747
+Number_of_AI_Tools_Used,0.3088954458195107
+AI_Adoption_Level_High,0.30299912449563166
+Age_Band_51-60,0.3013061171036076
+Education_Level_PhD,0.2953590499616234
+AI_Intensity_Index,0.293160617665208
+Company_Size_Large,0.2902410596285152
+Age_Band_31-40,0.2736542565175463
+Education_Level_Bachelor's,0.2651282020421694
+Age_Band_21-30,0.24652877575127316
+Age_Band_41-50,0.24175603559580142
+AI_Usage_Hours_Per_Week,0.16268945123856007
+Industry_Telecom,0.12539819492668267
+Age,0.1052270024038086
+Job_Role_Accountant,0.10444186320453812
+Job_Role_Network Engineer,0.08102191400876654
+Job_Role_Support Specialist,0.07493332095556371
+Job_Role_Operations Analyst,0.04622381048873917
+Company_Size_Score,0.019889262817094192

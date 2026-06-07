@@ -33,7 +33,7 @@ cells = [
 
         目标变量：`Layoff_Risk`，包含 `Low`、`Medium`、`High` 三类。
 
-        说明：当前 Notebook 使用项目基础依赖中的 `pandas`、`numpy`、`matplotlib`、`seaborn`、`scipy` 和 `scikit-learn`。若环境额外安装了 `shap`，模型解释部分会自动尝试补充 SHAP 分析；否则使用特征重要性和 permutation importance 作为主要解释方法。
+        说明：当前 Notebook 使用 `pandas`、`numpy`、`matplotlib`、`seaborn`、`scipy`、`scikit-learn`、`xgboost`、`lightgbm` 和 `shap`。其中 `Logistic Regression`、`Decision Tree`、`Random Forest`、`Gradient Boosting` 作为基线和传统模型，`XGBoost`、`LightGBM` 作为高级树模型，`SHAP` 用于输出高风险预测解释。
         """
     ),
     md(
@@ -82,6 +82,30 @@ cells = [
         from sklearn.tree import DecisionTreeClassifier
         from sklearn.metrics import silhouette_score
 
+        try:
+            import xgboost as xgb
+            HAS_XGBOOST = True
+        except Exception as exc:
+            xgb = None
+            HAS_XGBOOST = False
+            print(f"XGBoost 不可用: {exc}")
+
+        try:
+            import lightgbm as lgb
+            HAS_LIGHTGBM = True
+        except Exception as exc:
+            lgb = None
+            HAS_LIGHTGBM = False
+            print(f"LightGBM 不可用: {exc}")
+
+        try:
+            import shap
+            HAS_SHAP = True
+        except Exception as exc:
+            shap = None
+            HAS_SHAP = False
+            print(f"SHAP 不可用: {exc}")
+
         warnings.filterwarnings("ignore", category=FutureWarning)
         warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -112,6 +136,9 @@ cells = [
         print(f"Python: {sys.version.split()[0]}")
         print(f"pandas: {pd.__version__}")
         print(f"numpy: {np.__version__}")
+        print(f"xgboost: {xgb.__version__ if HAS_XGBOOST else 'not available'}")
+        print(f"lightgbm: {lgb.__version__ if HAS_LIGHTGBM else 'not available'}")
+        print(f"shap: {shap.__version__ if HAS_SHAP else 'not available'}")
         """
     ),
     md(
@@ -701,7 +728,10 @@ cells = [
         model_df = df_fe.copy()
         drop_for_multiclass = [TARGET_COL, "Risk_Binary", "Layoff_Risk_Score"]
         X = model_df.drop(columns=drop_for_multiclass)
-        y = model_df[TARGET_COL].astype(str)
+        TARGET_LABEL_MAP = {label: idx for idx, label in enumerate(RISK_ORDER)}
+        TARGET_LABEL_INV = {idx: label for label, idx in TARGET_LABEL_MAP.items()}
+        TARGET_LABELS = [TARGET_LABEL_MAP[label] for label in RISK_ORDER]
+        y = model_df[TARGET_COL].map(TARGET_LABEL_MAP).astype(int)
 
         categorical_features = [
             "Education_Level",
@@ -716,31 +746,32 @@ cells = [
         categorical_features = [c for c in categorical_features if c in X.columns]
         numeric_features = [c for c in X.columns if c not in categorical_features]
 
-        preprocessor = ColumnTransformer(
-            transformers=[
-                (
-                    "num",
-                    Pipeline(
-                        steps=[
-                            ("imputer", SimpleImputer(strategy="median")),
-                            ("scaler", StandardScaler()),
-                        ]
+        def build_preprocessor() -> ColumnTransformer:
+            return ColumnTransformer(
+                transformers=[
+                    (
+                        "num",
+                        Pipeline(
+                            steps=[
+                                ("imputer", SimpleImputer(strategy="median")),
+                                ("scaler", StandardScaler()),
+                            ]
+                        ),
+                        numeric_features,
                     ),
-                    numeric_features,
-                ),
-                (
-                    "cat",
-                    Pipeline(
-                        steps=[
-                            ("imputer", SimpleImputer(strategy="most_frequent")),
-                            ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
-                        ]
+                    (
+                        "cat",
+                        Pipeline(
+                            steps=[
+                                ("imputer", SimpleImputer(strategy="most_frequent")),
+                                ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+                            ]
+                        ),
+                        categorical_features,
                     ),
-                    categorical_features,
-                ),
-            ],
-            remainder="drop",
-        )
+                ],
+                remainder="drop",
+            )
 
         X_train, X_test, y_train, y_test = train_test_split(
             X,
@@ -771,12 +802,40 @@ cells = [
             "Gradient Boosting": GradientBoostingClassifier(random_state=RANDOM_STATE),
         }
 
+        if HAS_XGBOOST:
+            multiclass_models["XGBoost"] = xgb.XGBClassifier(
+                n_estimators=350,
+                max_depth=5,
+                learning_rate=0.05,
+                subsample=0.90,
+                colsample_bytree=0.90,
+                objective="multi:softprob",
+                eval_metric="mlogloss",
+                tree_method="hist",
+                random_state=RANDOM_STATE,
+                n_jobs=-1,
+            )
+
+        if HAS_LIGHTGBM:
+            multiclass_models["LightGBM"] = lgb.LGBMClassifier(
+                n_estimators=350,
+                learning_rate=0.05,
+                num_leaves=31,
+                subsample=0.90,
+                colsample_bytree=0.90,
+                objective="multiclass",
+                class_weight="balanced",
+                random_state=RANDOM_STATE,
+                n_jobs=-1,
+                verbosity=-1,
+            )
+
         fitted_multiclass = {}
         model_metrics = []
         model_reports = {}
 
         for name, estimator in multiclass_models.items():
-            pipe = Pipeline(steps=[("preprocessor", preprocessor), ("model", estimator)])
+            pipe = Pipeline(steps=[("preprocessor", build_preprocessor()), ("model", estimator)])
             pipe.fit(X_train, y_train)
             y_pred = pipe.predict(X_test)
             fitted_multiclass[name] = pipe
@@ -788,7 +847,14 @@ cells = [
                     "weighted_f1": f1_score(y_test, y_pred, average="weighted"),
                 }
             )
-            model_reports[name] = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
+            model_reports[name] = classification_report(
+                y_test,
+                y_pred,
+                labels=TARGET_LABELS,
+                target_names=RISK_ORDER,
+                output_dict=True,
+                zero_division=0,
+            )
 
         model_metrics_df = pd.DataFrame(model_metrics).sort_values("macro_f1", ascending=False)
         display(model_metrics_df)
@@ -797,13 +863,21 @@ cells = [
         best_multiclass_name = model_metrics_df.iloc[0]["model"]
         best_multiclass_model = fitted_multiclass[best_multiclass_name]
         print(f"最佳多分类模型: {best_multiclass_name}")
-        print(classification_report(y_test, best_multiclass_model.predict(X_test), zero_division=0))
+        print(
+            classification_report(
+                y_test,
+                best_multiclass_model.predict(X_test),
+                labels=TARGET_LABELS,
+                target_names=RISK_ORDER,
+                zero_division=0,
+            )
+        )
         """
     ),
     code(
         """
         best_y_pred = best_multiclass_model.predict(X_test)
-        cm = confusion_matrix(y_test, best_y_pred, labels=RISK_ORDER)
+        cm = confusion_matrix(y_test, best_y_pred, labels=TARGET_LABELS)
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=RISK_ORDER)
         disp.plot(cmap="Blues", values_format="d")
         plt.title(f"Confusion matrix: {best_multiclass_name}")
@@ -846,11 +920,40 @@ cells = [
             "Gradient Boosting": GradientBoostingClassifier(random_state=RANDOM_STATE),
         }
 
+        if HAS_XGBOOST:
+            binary_models["XGBoost"] = xgb.XGBClassifier(
+                n_estimators=350,
+                max_depth=5,
+                learning_rate=0.05,
+                subsample=0.90,
+                colsample_bytree=0.90,
+                objective="binary:logistic",
+                eval_metric="logloss",
+                scale_pos_weight=(y_train_bin.eq(0).sum() / y_train_bin.eq(1).sum()),
+                tree_method="hist",
+                random_state=RANDOM_STATE,
+                n_jobs=-1,
+            )
+
+        if HAS_LIGHTGBM:
+            binary_models["LightGBM"] = lgb.LGBMClassifier(
+                n_estimators=350,
+                learning_rate=0.05,
+                num_leaves=31,
+                subsample=0.90,
+                colsample_bytree=0.90,
+                objective="binary",
+                class_weight="balanced",
+                random_state=RANDOM_STATE,
+                n_jobs=-1,
+                verbosity=-1,
+            )
+
         fitted_binary = {}
         binary_metrics = []
 
         for name, estimator in binary_models.items():
-            pipe = Pipeline(steps=[("preprocessor", preprocessor), ("model", estimator)])
+            pipe = Pipeline(steps=[("preprocessor", build_preprocessor()), ("model", estimator)])
             pipe.fit(X_train_bin, y_train_bin)
             y_pred = pipe.predict(X_test_bin)
             y_proba = pipe.predict_proba(X_test_bin)[:, 1]
@@ -882,23 +985,56 @@ cells = [
     ),
     code(
         """
-        fpr, tpr, roc_thresholds = roc_curve(y_test_bin, y_proba_best)
-        precision, recall, pr_thresholds = precision_recall_curve(y_test_bin, y_proba_best)
-
         fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-        axes[0].plot(fpr, tpr, label=f"ROC-AUC = {roc_auc_score(y_test_bin, y_proba_best):.3f}")
+        sns.barplot(
+            data=model_metrics_df.sort_values("macro_f1", ascending=False),
+            y="model",
+            x="macro_f1",
+            ax=axes[0],
+            color="#557a9b",
+        )
+        axes[0].set_xlim(0, 1)
+        axes[0].set_title("Multiclass model comparison")
+        axes[0].set_xlabel("Macro F1")
+        axes[0].set_ylabel("")
+
+        sns.barplot(
+            data=binary_metrics_df.sort_values("high_recall", ascending=False),
+            y="model",
+            x="high_recall",
+            ax=axes[1],
+            color="#b46a52",
+        )
+        axes[1].set_xlim(0, 1)
+        axes[1].set_title("Binary high-risk model comparison")
+        axes[1].set_xlabel("High recall")
+        axes[1].set_ylabel("")
+        savefig("advanced_model_comparison.png")
+        """
+    ),
+    code(
+        """
+        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+        for name, pipe in fitted_binary.items():
+            proba = pipe.predict_proba(X_test_bin)[:, 1]
+            fpr, tpr, _ = roc_curve(y_test_bin, proba)
+            precision_curve, recall_curve, _ = precision_recall_curve(y_test_bin, proba)
+            axes[0].plot(fpr, tpr, label=f"{name}: {roc_auc_score(y_test_bin, proba):.3f}")
+            axes[1].plot(recall_curve, precision_curve, label=f"{name}: {average_precision_score(y_test_bin, proba):.3f}")
+
         axes[0].plot([0, 1], [0, 1], linestyle="--", color="gray")
         axes[0].set_xlabel("False Positive Rate")
         axes[0].set_ylabel("True Positive Rate")
-        axes[0].set_title(f"ROC curve: {best_binary_name}")
+        axes[0].set_title("ROC curves")
         axes[0].legend()
 
-        axes[1].plot(recall, precision, label=f"PR-AUC = {average_precision_score(y_test_bin, y_proba_best):.3f}")
         axes[1].set_xlabel("Recall")
         axes[1].set_ylabel("Precision")
-        axes[1].set_title(f"Precision-Recall curve: {best_binary_name}")
+        axes[1].set_title("Precision-Recall curves")
         axes[1].legend()
         savefig("binary_roc_pr_curves.png")
+
+        precision, recall, pr_thresholds = precision_recall_curve(y_test_bin, y_proba_best)
 
         threshold_table = pd.DataFrame(
             {
@@ -930,7 +1066,9 @@ cells = [
         """
         ## 11. 模型解释
 
-        先使用 permutation importance 解释原始输入特征对最佳多分类模型的影响；再根据模型类型补充系数或树模型特征重要性。若环境安装了 `shap`，可在本节最后运行可选 SHAP 分析。
+        先使用 permutation importance 解释原始输入特征对最佳多分类模型的影响；再根据模型类型补充系数或树模型特征重要性。
+
+        在已安装 `LightGBM` 和 `SHAP` 的环境中，本节会额外训练一个高风险二分类解释模型，用 SHAP 输出哪些因素会把样本推向 `High` 风险。
         """
     ),
     code(
@@ -1018,21 +1156,113 @@ cells = [
     ),
     code(
         """
-        try:
-            import shap
+        shap_high_risk_importance_df = pd.DataFrame()
 
-            shap_available = True
-        except Exception as exc:
-            shap_available = False
-            print(f"SHAP 未安装或不可用，已跳过 SHAP 分析: {exc}")
+        if not (HAS_LIGHTGBM and HAS_SHAP):
+            print("LightGBM 或 SHAP 不可用，跳过高级 SHAP 解释。")
+        else:
+            shap_preprocessor = build_preprocessor()
+            X_train_shap = shap_preprocessor.fit_transform(X_train_bin)
+            X_test_shap = shap_preprocessor.transform(X_test_bin)
+            shap_feature_names = [
+                name.replace("num__", "").replace("cat__", "")
+                for name in shap_preprocessor.get_feature_names_out()
+            ]
 
-        if shap_available:
-            sample = X_test.sample(min(1000, len(X_test)), random_state=RANDOM_STATE)
-            transformed_sample = best_multiclass_model.named_steps["preprocessor"].transform(sample)
-            explainer = shap.Explainer(best_multiclass_model.named_steps["model"], transformed_sample)
-            shap_values = explainer(transformed_sample)
-            shap.summary_plot(shap_values, transformed_sample, feature_names=clean_feature_names, show=False)
-            savefig("shap_summary_optional.png")
+            shap_lgbm_model = lgb.LGBMClassifier(
+                n_estimators=350,
+                learning_rate=0.05,
+                num_leaves=31,
+                subsample=0.90,
+                colsample_bytree=0.90,
+                objective="binary",
+                class_weight="balanced",
+                random_state=RANDOM_STATE,
+                n_jobs=-1,
+                verbosity=-1,
+            )
+            shap_lgbm_model.fit(X_train_shap, y_train_bin)
+
+            shap_pred = shap_lgbm_model.predict(X_test_shap)
+            shap_proba = shap_lgbm_model.predict_proba(X_test_shap)[:, 1]
+            shap_eval = {
+                "accuracy": accuracy_score(y_test_bin, shap_pred),
+                "high_precision": precision_score(y_test_bin, shap_pred, zero_division=0),
+                "high_recall": recall_score(y_test_bin, shap_pred, zero_division=0),
+                "high_f1": f1_score(y_test_bin, shap_pred, zero_division=0),
+                "roc_auc": roc_auc_score(y_test_bin, shap_proba),
+                "pr_auc": average_precision_score(y_test_bin, shap_proba),
+            }
+            display(pd.DataFrame([shap_eval]))
+            pd.DataFrame([shap_eval]).to_csv(TABLE_DIR / "shap_lgbm_high_risk_model_metrics.csv", index=False)
+
+            rng = np.random.default_rng(RANDOM_STATE)
+            shap_sample_size = min(2500, X_test_shap.shape[0])
+            shap_sample_idx = rng.choice(X_test_shap.shape[0], size=shap_sample_size, replace=False)
+            X_shap_sample = X_test_shap[shap_sample_idx]
+
+            explainer = shap.TreeExplainer(shap_lgbm_model)
+            shap_values_raw = explainer.shap_values(X_shap_sample)
+            if isinstance(shap_values_raw, list):
+                shap_values_high = shap_values_raw[1]
+            else:
+                shap_values_high = shap_values_raw
+
+            X_shap_sample_df = pd.DataFrame(X_shap_sample, columns=shap_feature_names)
+            shap_high_risk_importance_df = (
+                pd.DataFrame(
+                    {
+                        "feature": shap_feature_names,
+                        "mean_abs_shap": np.abs(shap_values_high).mean(axis=0),
+                        "mean_shap": shap_values_high.mean(axis=0),
+                    }
+                )
+                .sort_values("mean_abs_shap", ascending=False)
+                .reset_index(drop=True)
+            )
+            display(shap_high_risk_importance_df.head(25))
+            shap_high_risk_importance_df.to_csv(TABLE_DIR / "shap_high_risk_importance.csv", index=False)
+
+            shap.summary_plot(
+                shap_values_high,
+                X_shap_sample_df,
+                max_display=25,
+                show=False,
+            )
+            savefig("shap_high_risk_summary.png")
+
+            shap.summary_plot(
+                shap_values_high,
+                X_shap_sample_df,
+                plot_type="bar",
+                max_display=25,
+                show=False,
+            )
+            savefig("shap_high_risk_bar.png")
+
+            dependence_candidates = [
+                "Automation_Exposure_Index",
+                "AI_Intensity_Index",
+                "Routine_Task_Percentage",
+                "Tasks_Automated_Percentage",
+                "Human_Creative_Protection_Index",
+                "Creativity_Requirement",
+            ]
+            top_dependence_features = [
+                feature
+                for feature in dependence_candidates
+                if feature in X_shap_sample_df.columns
+            ][:4]
+            for feature in top_dependence_features:
+                shap.dependence_plot(
+                    feature,
+                    shap_values_high,
+                    X_shap_sample_df,
+                    show=False,
+                    interaction_index=None,
+                )
+                plt.title(f"SHAP dependence: {feature}")
+                savefig(f"shap_dependence_{feature}.png")
         """
     ),
     md(
@@ -1214,6 +1444,11 @@ cells = [
         best_multiclass_row = model_metrics_df.iloc[0]
         best_binary_row = binary_metrics_df.iloc[0]
         top_perm = permutation_importance_df.head(8)["feature"].tolist()
+        top_shap = (
+            shap_high_risk_importance_df.head(8)["feature"].tolist()
+            if "shap_high_risk_importance_df" in globals() and not shap_high_risk_importance_df.empty
+            else []
+        )
         most_risky_cluster = cluster_profile.index[0]
 
         print("核心结论")
@@ -1259,8 +1494,13 @@ cells = [
             f"High Recall={best_binary_row['high_recall']:.3f}，PR-AUC={best_binary_row['pr_auc']:.3f}。"
         )
         print("9. 对模型最重要的输入特征包括: " + ", ".join(top_perm))
+        if top_shap:
+            print("10. SHAP 高风险方向解释中最重要的特征包括: " + ", ".join(top_shap))
+            cluster_line_no = "11"
+        else:
+            cluster_line_no = "10"
         print(
-            f"10. 聚类中最高风险群体为 Cluster {most_risky_cluster}，"
+            f"{cluster_line_no}. 聚类中最高风险群体为 Cluster {most_risky_cluster}，"
             f"高风险比例 {cluster_profile.loc[most_risky_cluster, 'high_rate']:.1%}。"
         )
         """
