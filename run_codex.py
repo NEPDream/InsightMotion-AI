@@ -24,7 +24,7 @@ class PromptJob:
 
 PROMPTS = [
     PromptJob(
-        name="review_project_structure",
+        name="create_dataset_analysis_plan",
         prompt="""
         读取并分析 dataset 文件夹下面的所有dateset数据文件，然后根据里面的数据内容，
         制定详细的数据分析计划，并把数据分析计划使用markdown格式保存在 dataset 文件夹中，
@@ -32,7 +32,7 @@ PROMPTS = [
         """,
     ),
     PromptJob(
-        name="implement_changes",
+        name="run_notebook_data_analysis",
         prompt="""
         认真阅读 dataset 目录下的名称包含plan的数据分析计划书，
         然后按照计划书中的内容，配置相关环境，并执行数据分析，
@@ -41,7 +41,7 @@ PROMPTS = [
         """,
     ),
     PromptJob(
-        name="implement_changes",
+        name="write_chinese_analysis_report",
         prompt="""
         认真阅读 dataset 目录下的名称包含analysis的数据分析报告，
         然后根据jupter notebook中的内容，使用中文，写成一篇详细深入
@@ -49,13 +49,13 @@ PROMPTS = [
         """,
     ),
     PromptJob(
-        name="implement_changes",
+        name="verify_npm_dev_environment",
         prompt="""
         为当前项目执行 `npm install`，并执行 `npm run dev`，确保没有任何报错
         """,
     ),
     PromptJob(
-        name="implement_changes",
+        name="create_visualization_storyboards",
         prompt="""
         认真阅读 dataset 目录下的文件名包含report的数据分析报告，深入理解内容后，
         在 visualization 目录下生成两个markdown格式的分镜设计文件，要求一个是赛博朋克科技风，
@@ -65,7 +65,7 @@ PROMPTS = [
         """,
     ),
     PromptJob(
-        name="implement_changes",
+        name="implement_remotion_video_code",
         prompt="""
         按照visualization目录下面的两个分镜设计脚本，开始使用安装的nodejs的依赖进行视频制作，
         需要调用remotion的技能。制作完成后的代码必须保存在src目录中，不用对生成的视频进行渲染和
