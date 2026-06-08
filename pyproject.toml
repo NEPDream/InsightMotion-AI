@@ -1,0 +1,9 @@
+[project]
+name = "ai-impact-on-jobs-and-layoff-risk"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "openai-codex>=0.1.0b2",
+]
